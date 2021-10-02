@@ -1,2 +1,2 @@
 # ProxyServer
- Proxy Servers for Windows + Linux
+ Very Simple Proxy Server for Windows + Linux
