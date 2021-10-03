@@ -4,7 +4,7 @@
 # 
 # Host: 127.0.0.1
 # Database: 3proxy
-# Table: 'logs'
+# Table: 'log'
 # 
 CREATE TABLE `log` (
   `time` datetime NOT NULL default '0000-00-00 00:00:00',

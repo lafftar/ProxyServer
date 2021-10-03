@@ -1,5 +1,6 @@
 import asyncio
 import shutil
+import sys
 from asyncio import sleep, subprocess
 from aiofiles import open as aopen
 from os import getcwd, chdir
@@ -11,7 +12,18 @@ from base_classes.port_counter import PortCounter
 from base_classes.proxy_q_holder import ProxyQ
 from utils.root import get_project_root
 
-with open(f'{get_project_root()}/base_3proxy/3proxy/bin64/3proxy.cfg', 'r') as file:
+PATH, EXEC_PATH = None, None
+
+if sys.platform == 'win32':
+    PATH = 'bin64'
+    EXEC_PATH = '3proxy.exe'
+
+if sys.platform == 'linux':
+    PATH = 'bin'
+    EXEC_PATH = '3proxy 3proxy.cfg'
+
+
+with open(f'{get_project_root()}/base_3proxy/3proxy/{PATH}/3proxy.cfg', 'r') as file:
     BASE_CONFIG = [line.strip() for line in file.readlines()]
 
 
@@ -44,22 +56,29 @@ class BaseLauncher(Base):
                     dirs_exist_ok=True
                 )
                 break
-            except shutil.Error:
+            except shutil.Error as esx:
+                # self.exception(f'{esx}')
+                # input()
+                # print('failed')
                 await self.stop_port()
                 continue
         self.debug('All Port Files Created')
 
     async def edit_port_cfg(self):
-        cfg_file = f'{self.port_directory}/bin64/3proxy.cfg'
+        cfg_file = f'{self.port_directory}/{PATH}/3proxy.cfg'
         async with aopen(cfg_file, 'w') as file:
             await file.write(self.current_config)
         self.debug('Config Edited Successfully')
 
     async def start_port(self):
         cwd = getcwd()
-        chdir(f'{self.port_directory}/bin64/')
-        self.port_process = await asyncio.create_subprocess_exec('3proxy.exe',
-                                                                 stdout=subprocess.PIPE)
+        chdir(f'{self.port_directory}/{PATH}/')
+        if sys.platform == 'linux':
+            self.port_process = await asyncio.create_subprocess_shell(f'{EXEC_PATH}',
+                                                                     stdout=subprocess.PIPE)
+        if sys.platform == 'win32':
+            self.port_process = await asyncio.create_subprocess_exec(f'{EXEC_PATH}',
+                                                                      stdout=subprocess.PIPE)
         self.debug('Port Started')
         chdir(cwd)
         await sleep(0.5)

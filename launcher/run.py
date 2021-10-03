@@ -22,11 +22,30 @@ async def run(num_tasks_to_run: int = 5):
 
 if __name__ == "__main__":
     import sys
+
     if sys.platform == 'win32':
         import win32file
 
         # asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
         win32file._setmaxstdio(8192)
+        system('taskkill /F /IM 3proxy.exe')
 
-    system('taskkill /F /IM 3proxy.exe')
-    asyncio.get_event_loop().run_until_complete(run(10))
+    if sys.platform == 'linux':
+        import resource
+        import uvloop
+
+        uvloop.install()
+        system('killall -KILL 3proxy')
+
+        before, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        try:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (1048576, hard))
+            after, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+            logger().info(f'\n'
+                          f'\tRaised max limit\n'
+                          f'\tPrevious Limit - {before}\n'
+                          f'\tNew Limit - {after}')
+        except ValueError:
+            logger().warning(f'Already at max limit - {before}')
+
+    asyncio.get_event_loop().run_until_complete(run(100))
