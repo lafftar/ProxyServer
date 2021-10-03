@@ -45,4 +45,4 @@ class ProxyServerLauncher(BaseLauncher):
         await self.edit_port_cfg()
         await self.start_port()
         self.proxy_q_holder.proxy_servers.append(self)
-        await sleep(600)
+        await sleep(604800)

@@ -20,7 +20,7 @@ if sys.platform == 'win32':
 
 if sys.platform == 'linux':
     PATH = 'bin'
-    EXEC_PATH = '3proxy 3proxy.cfg'
+    EXEC_PATH = './3proxy 3proxy.cfg'
 
 
 with open(f'{get_project_root()}/base_3proxy/3proxy/{PATH}/3proxy.cfg', 'r') as file:
